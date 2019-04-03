@@ -69,9 +69,9 @@ class Slot():
             if not self.get_lock():
                 self.lock()
                 try:
-                    subprocess.call("/mnt/w1/{}/PIO".format(self.w1_id), shell=True)
+                    subprocess.call("echo '1' > /mnt/w1/{}/PIO".format(self.w1_id), shell=True)
                     time.sleep(.5)
-                    subprocess.call("/mnt/w1/{}/PIO".format(self.w1_id), shell=True)
+                    subprocess.call("echo '0' > /mnt/w1/{}/PIO".format(self.w1_id), shell=True)
                 except IOError:
                     print('bad')
                 time.sleep(2)
