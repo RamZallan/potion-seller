@@ -22,7 +22,7 @@ class Machine():
     def __init__(self, name, slot_addresses, temp_sensor=None):
         self.name = name
         self.slots = [Slot(address) for address in slot_addresses]
-        self.temp = temp_sensor
+        self.temp = Sensor(temp_sensor)
         print('Creating machine ' + self.name + ' with addresses: ' + ', '.join([str(s) for s in self.slots]))
 
     def drop(self, slot_num):
@@ -30,10 +30,13 @@ class Machine():
             raise ValueError('{} is an invalid slot number for {}'.format(slot_num, self.name))
         return self.slots[slot_num-1].drop()
 
+    def temperature(self):
+        return self.temp.temperature()
+
 
 class Slot():
     def __init__(self, w1_id):
-        self.w1_id = w1_id;
+        self.w1_id = w1_id
         self.lock = False
 
     def __repr__(self):
@@ -43,7 +46,14 @@ class Slot():
         return self.w1_id
 
     def get_status(self):
-        pass
+        try:
+            file = open("/mnt/w1/{}/id".format(self.w1_id))
+            print('Slot {} active'.format(self.w1_id))
+            file.close()
+        except:
+            print('Slot {} disabled'.format(self.w1_id))
+            return False
+        return True
 
     def get_lock(self):
         return self.lock
@@ -55,5 +65,32 @@ class Slot():
         self.lock = False
 
     def drop(self):
-        pass
+        if self.get_status():
+            if not self.get_lock():
+                self.lock()
+                try:
+                    subprocess.call("/mnt/w1/{}/PIO".format(self.w1_id), shell=True)
+                    time.sleep(.5)
+                    subprocess.call("/mnt/w1/{}/PIO".format(self.w1_id), shell=True)
+                except IOError:
+                    print('bad')
+                time.sleep(2)
+                self.unlock()
+                return True
+
+        return False
+
+
+class Sensor():
+    def __init__(self, w1_id):
+        self.w1_id = w1_id
+
+    def temperature(self):
+        try:
+            with open('/mnt/w1/{}/temperature12'.format(self.w1_id), 'r') as temp_file:
+                temperature = temp_file.read().rstrip()
+                f_temperature = float(temperature) * (9.0/5.0) + 32.0
+        except IOError as e:
+            return -1
+        return f_temperature
 
