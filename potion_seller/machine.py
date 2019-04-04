@@ -19,16 +19,29 @@ import subprocess
 import time
 
 class Machine():
-    def __init__(self, name, slot_addresses, temp_sensor=None):
+    def __init__(self, name, slot_addresses, temp_sensor=None, drop_timing=0.5):
         self.name = name
         self.slots = [Slot(address) for address in slot_addresses]
         self.temp = Sensor(temp_sensor)
+        self.timing = drop_timing
+
         print('Creating machine ' + self.name + ' with addresses: ' + ', '.join([str(s) for s in self.slots]))
 
     def drop(self, slot_num):
         if slot_num > len(self.slots) or slot_num < 1:
             raise ValueError('{} is an invalid slot number for {}'.format(slot_num, self.name))
         return self.slots[slot_num-1].drop()
+
+    def get_status(self):
+        buff = ''
+        for i in range(len(self.slots)):
+            buff += "Slot {} ({}) is ".format(i+1, str(self.slots[i]))
+            if self.slots[i].get_status():
+                buff += "active\n"
+            else:
+                buff += "disabled\n"
+
+        return buff
 
     def temperature(self):
         return self.temp.temperature()
@@ -70,7 +83,7 @@ class Slot():
                 self.lock()
                 try:
                     subprocess.call("echo '1' > /mnt/w1/{}/PIO".format(self.w1_id), shell=True)
-                    time.sleep(.5)
+                    time.sleep(self.timing)
                     subprocess.call("echo '0' > /mnt/w1/{}/PIO".format(self.w1_id), shell=True)
                 except IOError:
                     print('bad')
