@@ -14,7 +14,10 @@ app.secret_key = app.config['SECRET_KEY']
 
 from potion_seller.machine import Machine
 # Create a machine object from the config values generated in config.py
-machine_obj = Machine(app.config['MACHINE_NAME'], app.config['W1_ADDRESSES'], app.config['TEMP_ADDRESS'])
+machine_obj = Machine(app.config['MACHINE_NAME'], 
+                      app.config['W1_ADDRESSES'], 
+                      app.config['TEMP_ADDRESS'],
+                      app.config['DROP_TIMING'])
 
 from potion_seller.health import health_bp
 from potion_seller.drop import drop_bp
