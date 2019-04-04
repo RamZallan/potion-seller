@@ -22,14 +22,14 @@ class Machine():
     def __init__(self, name, slot_addresses, temp_sensor=None, drop_timing=0.5):
         self.name = name
         self.slots = [Slot(address) for address in slot_addresses]
-        self.temp = Sensor(temp_sensor, drop_timing)
-
+        self.temp = Sensor(temp_sensor)
+        self.timing = drop_timing
         print('Creating machine ' + self.name + ' with addresses: ' + ', '.join([str(s) for s in self.slots]))
 
     def drop(self, slot_num):
         if slot_num > len(self.slots) or slot_num < 1:
             raise ValueError('{} is an invalid slot number for {}'.format(slot_num, self.name))
-        return self.slots[slot_num-1].drop()
+        return self.slots[slot_num-1].drop(self.timing)
 
     def get_status(self):
         buff = ''
@@ -47,10 +47,9 @@ class Machine():
 
 
 class Slot():
-    def __init__(self, w1_id, timing):
+    def __init__(self, w1_id):
         self.w1_id = w1_id
         self._lock = False
-        self.timing = timing
 
     def __repr__(self):
         return str('<Slot [{}]>'.format(self.w1_id))
@@ -77,13 +76,13 @@ class Slot():
     def unlock(self):
         self._lock = False
 
-    def drop(self):
+    def drop(self, timing):
         if self.get_status():
             if not self.get_lock():
                 self.lock()
                 try:
                     subprocess.call("echo '1' > /mnt/w1/{}/PIO".format(self.w1_id), shell=True)
-                    time.sleep(self.timing)
+                    time.sleep(timing)
                     subprocess.call("echo '0' > /mnt/w1/{}/PIO".format(self.w1_id), shell=True)
                 except IOError:
                     print('bad')
