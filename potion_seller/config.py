@@ -17,4 +17,5 @@ MACHINE_NAME = config['DRINK']['MACHINE_NAME']
 API_KEY = config['DRINK']['API_KEY']
 W1_ADDRESSES = config['DRINK']['W1_ADDRESSES'].split('\n')
 TEMP_ADDRESS = config['DRINK']['TEMP_ADDRESS'] # temperature sensor
+DROP_TIMING = float(config['DRINK']['DROP_TIMING'])
 

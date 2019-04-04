@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify
-from potion_seller import app
+from potion_seller import app, machine_obj
 from potion_seller.auth import auth
 
 health_bp = Blueprint('health_bp', __name__)
@@ -11,8 +11,10 @@ def health_check():
     result = {
         "slots": [],
     }
-    for addr in app.config['W1_ADDRESSES']:
-        result['slots'].append('Get value for: ' + addr)
+
+    result['slots'] = machine_obj.get_status().rstrip().split('\n')
+    result['temp'] = machine_obj.temperature()
+
     return jsonify(result), 200
 
 
