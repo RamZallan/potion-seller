@@ -37,7 +37,7 @@ class Machine():
 class Slot():
     def __init__(self, w1_id):
         self.w1_id = w1_id
-        self.lock = False
+        self._lock = False
 
     def __repr__(self):
         return str('<Slot [{}]>'.format(self.w1_id))
@@ -56,13 +56,13 @@ class Slot():
         return True
 
     def get_lock(self):
-        return self.lock
+        return self._lock
 
     def lock(self):
-        self.lock = True
+        self._lock = True
 
     def unlock(self):
-        self.lock = False
+        self._lock = False
 
     def drop(self):
         if self.get_status():
