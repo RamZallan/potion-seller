@@ -22,8 +22,7 @@ class Machine():
     def __init__(self, name, slot_addresses, temp_sensor=None, drop_timing=0.5):
         self.name = name
         self.slots = [Slot(address) for address in slot_addresses]
-        self.temp = Sensor(temp_sensor)
-        self.timing = drop_timing
+        self.temp = Sensor(temp_sensor, drop_timing)
 
         print('Creating machine ' + self.name + ' with addresses: ' + ', '.join([str(s) for s in self.slots]))
 
@@ -48,9 +47,10 @@ class Machine():
 
 
 class Slot():
-    def __init__(self, w1_id):
+    def __init__(self, w1_id, timing):
         self.w1_id = w1_id
         self._lock = False
+        self.timing = timing
 
     def __repr__(self):
         return str('<Slot [{}]>'.format(self.w1_id))
