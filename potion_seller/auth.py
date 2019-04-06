@@ -10,6 +10,6 @@ def auth(func):
         if (token == app.config['API_KEY']):
             return func(*args, **kwargs) # valid auth token
         else:
-            return jsonify({'error': 'Invalid credentials', 'error_code': 401}), 401
+            return jsonify({'error': 'Invalid credentials', 'errorCode': 401}), 401
     return wrapped_function
 
