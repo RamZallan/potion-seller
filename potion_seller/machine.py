@@ -36,9 +36,9 @@ class Machine():
         for i in range(len(self.slots)):
             buff += "Slot {} ({}) is ".format(i+1, str(self.slots[i]))
             if self.slots[i].get_status():
-                buff += "active\n"
+                buff += "stocked\n"
             else:
-                buff += "disabled\n"
+                buff += "empty\n"
 
         return buff
 
@@ -60,10 +60,10 @@ class Slot():
     def get_status(self):
         try:
             file = open("/mnt/w1/{}/id".format(self.w1_id))
-            print('Slot {} active'.format(self.w1_id))
+            print('Slot {} stocked'.format(self.w1_id))
             file.close()
         except:
-            print('Slot {} disabled'.format(self.w1_id))
+            print('Slot {} empty'.format(self.w1_id))
             return False
         return True
 
