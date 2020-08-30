@@ -108,3 +108,6 @@ config.ini
 
 # vim .swp files
 *.swp
+
+# JetBrains
+.idea

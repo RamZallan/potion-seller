@@ -1,0 +1,11 @@
+[MESSAGES CONTROL]
+disable =
+  cyclic-import,
+  import-error,
+  missing-docstring,
+  too-few-public-methods,
+
+[FORMAT]
+max-line-length = 120
+max-statement-lines = 75
+single-line-if-stmt = no
