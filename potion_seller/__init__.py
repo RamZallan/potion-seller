@@ -1,38 +1,49 @@
-import os
-
-from flask import Flask, jsonify, request, session
+from flask import Flask, jsonify
 
 from potion_seller import config
+from potion_seller.machine import Machine
+from potion_seller.machine_test import mock_machine
 
 app = Flask(__name__)
-
 app.config.from_object(config)
-if os.path.exists(os.path.join(os.getcwd(), 'config.py')):
-    app.config.from_pyfile(os.path.join(os.getcwd(), 'config.py'))
+app.secret_key = app.config["SECRET_KEY"]
 
-app.secret_key = app.config['SECRET_KEY']
 
-from potion_seller.machine import Machine
-# Create a machine object from the config values generated in config.py
-machine_obj = Machine(app.config['MACHINE_NAME'], 
-                      app.config['W1_ADDRESSES'], 
-                      app.config['TEMP_ADDRESS'],
-                      app.config['DROP_TIMING'])
+def init_machine():
+    if app.config["ENV"] in ("test", "staging"):
+        mach = Machine(
+            app.config["MACHINE_NAME"],
+            ["SLOT1", "SLOT2", "SLOT3"],
+            ["TEMP0"],
+            app.config["DROP_TIMING"],
+        )
 
-from potion_seller.health import health_bp
+        return mock_machine(mach)
+
+    return Machine(
+        app.config["MACHINE_NAME"],
+        app.config["SLOT_ADDRESSES"],
+        app.config["TEMP_ADDRESS"],
+        app.config["DROP_TIMING"],
+    )
+
+
+machine = init_machine()
+
+# pylint: disable=wrong-import-position
 from potion_seller.drop import drop_bp
-
+from potion_seller.health import health_bp
 
 app.register_blueprint(health_bp)
 app.register_blueprint(drop_bp)
 
+
 @app.errorhandler(404)
-def handle_404(e):
+def handle_404(err):
     error = {
         "message": "What you're looking for does not exist, like a drink admin when drink is empty",
-        "error": str(e),
+        "error": str(err),
         "errorCode": 404,
     }
 
     return jsonify(error), 404
-

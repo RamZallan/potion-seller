@@ -1,0 +1,15 @@
+version: '3'
+services:
+  potion_seller:
+    build: .
+    ports:
+      - 127.0.0.1:5000:5000
+    environment:
+      - POTION_SELLER_DEBUG=true
+      - POTION_SELLER_ENV=staging
+      - POTION_SELLER_API_KEY=drinkwilleatyourchildren
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
