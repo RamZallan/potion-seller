@@ -25,6 +25,7 @@ The default API key (for development use only!) is: `drinkwilleatyourchildren`
 1. `make` to install dependencies (or run the commands inside the Makefile manually)
 1. `pipenv shell`
 1. At a minimum, set the following configuration variables (see `potion_seller/config.py`):
+    - `export POTION_SELLER_ENV=staging` if not running on an actual drink machine
     - `export POTION_SELLER_API_KEY=<key>`, replacing `<key>` with the desired API key
 1. If running on an actual drink machine, these additional configuration variables should be set:
     - `export POTION_SELLER_SLOT_ADDRESSES=<addrs>`, replacing `<addrs>` with a comma-separated list of each slot's OneWire addresses as they appear in `/mnt/w1`

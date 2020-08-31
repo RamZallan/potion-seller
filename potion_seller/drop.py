@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 
-from potion_seller import app, machine
+from potion_seller import machine
 from potion_seller.auth import auth
 
 drop_bp = Blueprint("drop_bp", __name__)
@@ -27,10 +27,10 @@ def drop_drink():
         }
         return jsonify(failure), 400
 
-    if slot > len(app.config["SLOT_ADDRESSES"]):  # slot index doesn't exist
+    if slot > len(machine.slots):  # slot index doesn't exist
         failure = {
             "error": "The slot number provided was beyond the range of the machine (slots: {})".format(
-                len(app.config["SLOT_ADDRESSES"])
+                len(machine.slots)
             ),
             "errorCode": 400,
         }

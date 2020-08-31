@@ -2,6 +2,7 @@ import secrets
 import socket
 from os import environ as env
 
+ENV = env.get("POTION_SELLER_ENV", default="production")
 DEBUG = env.get("POTION_SELLER_DEBUG", "false").lower() == "true"
 IP = env.get("POTION_SELLER_IP", "0.0.0.0")
 PORT = env.get("POTION_SELLER_PORT", 5000)
