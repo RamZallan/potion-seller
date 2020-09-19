@@ -18,23 +18,25 @@ Little Drink should have like a 1s drop time, big drink should only be enabled f
 import subprocess
 import time
 
-class Machine():
+
+class Machine:
     def __init__(self, name, slot_addresses, temp_sensor=None, drop_timing=0.5):
         self.name = name
         self.slots = [Slot(address) for address in slot_addresses]
         self.temp = Sensor(temp_sensor)
         self.timing = drop_timing
-        print('Creating machine ' + self.name + ' with addresses: ' + ', '.join([str(s) for s in self.slots]))
+        print('Creating machine %s with addresses: %s'
+              % (self.name, ', '.join([str(s) for s in self.slots])))
 
     def drop(self, slot_num):
         if slot_num > len(self.slots) or slot_num < 1:
-            raise ValueError('{} is an invalid slot number for {}'.format(slot_num, self.name))
-        return self.slots[slot_num-1].drop(self.timing)
+            raise ValueError('%d is an invalid slot number for %s' % (slot_num, self.name))
+        return self.slots[slot_num - 1].drop(self.timing)
 
     def get_status(self):
         buff = ''
         for i in range(len(self.slots)):
-            buff += "Slot {} ({}) is ".format(i+1, str(self.slots[i]))
+            buff += "Slot %d (%s) is " % (i + 1, str(self.slots[i]))
             if self.slots[i].get_status():
                 buff += "stocked\n"
             else:
@@ -46,13 +48,13 @@ class Machine():
         return self.temp.temperature()
 
 
-class Slot():
+class Slot:
     def __init__(self, w1_id):
         self.w1_id = w1_id
         self._lock = False
 
     def __repr__(self):
-        return str('<Slot [{}]>'.format(self.w1_id))
+        return str('<Slot [%s]>' % self.w1_id)
 
     def __str__(self):
         return self.w1_id
@@ -81,11 +83,11 @@ class Slot():
             if not self.get_lock():
                 self.lock()
                 try:
-                    subprocess.call("echo '1' > /mnt/w1/{}/PIO".format(self.w1_id), shell=True)
+                    subprocess.call("echo '1' > /mnt/w1/%s/PIO" % self.w1_id, shell=True)
                     time.sleep(timing)
-                    subprocess.call("echo '0' > /mnt/w1/{}/PIO".format(self.w1_id), shell=True)
-                except IOError:
-                    print('bad')
+                    subprocess.call("echo '0' > /mnt/w1/%s/PIO" % self.w1_id, shell=True)
+                except IOError as err:
+                    print('Failed subprocess call\n[ERROR]: %s' % err)
                 time.sleep(2)
                 self.unlock()
                 return True
@@ -93,16 +95,17 @@ class Slot():
         return False
 
 
-class Sensor():
+class Sensor:
     def __init__(self, w1_id):
         self.w1_id = w1_id
 
     def temperature(self):
         try:
-            with open('/mnt/w1/{}/temperature12'.format(self.w1_id), 'r') as temp_file:
+            with open('/mnt/w1/%s/temperature12' % self.w1_id, 'r') as temp_file:
                 temperature = temp_file.read().rstrip()
-                f_temperature = float(temperature) * (9.0/5.0) + 32.0
-        except IOError as e:
+                f_temperature = float(temperature) * (9.0 / 5.0) + 32.0
+        except IOError as err:
+            print("Failed to read from file '/mnt/w1/%s/temperature12'\n[ERROR]: %s"
+                  % (self.w1_id, err))
             return -1
         return f_temperature
-

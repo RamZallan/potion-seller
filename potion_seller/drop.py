@@ -26,25 +26,24 @@ def drop_drink():
         }
         return jsonify(failure), 400
 
-    if slot > len(app.config['W1_ADDRESSES']): # slot index doesn't exist
+    if slot > len(app.config['W1_ADDRESSES']):  # slot index doesn't exist
         failure = {
-            "error": "The slot number provided was beyond the range of the machine (slots: {})".format(
-                len(app.config['W1_ADDRESSES'])
-            ),
+            "error": "The slot number provided was beyond the range of the machine (slots: %d)" %
+                     len(app.config['W1_ADDRESSES']),
             "errorCode": 400
         }
 
         return jsonify(failure), 400
+
     elif machine_obj.drop(slot):
         success = {
-            "message": "Dropped drink from slot {}".format(slot)
+            "message": "Dropped drink from slot %d" % slot
         }
         return jsonify(success), 200
-    else:
-        failure = {
-            "error": "The slot is not mounted, available, or was busy",
-            "errorCode": 503 # Service Unavailable
-        }
 
-        return jsonify(failure), 503
+    failure = {
+        "error": "The slot is not mounted, available, or was busy",
+        "errorCode": 503  # Service Unavailable
+    }
 
+    return jsonify(failure), 503
