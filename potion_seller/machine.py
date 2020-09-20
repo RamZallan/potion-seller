@@ -17,6 +17,8 @@ Little Drink should have like a 1s drop time, big drink should only be enabled f
 """
 import subprocess
 import time
+from pathlib import Path
+
 
 class Machine():
     def __init__(self, name, slot_addresses, temp_sensor=None, drop_timing=0.5):
@@ -29,12 +31,12 @@ class Machine():
     def drop(self, slot_num):
         if slot_num > len(self.slots) or slot_num < 1:
             raise ValueError('{} is an invalid slot number for {}'.format(slot_num, self.name))
-        return self.slots[slot_num-1].drop(self.timing)
+        return self.slots[slot_num - 1].drop(self.timing)
 
     def get_status(self):
         buff = ''
         for i in range(len(self.slots)):
-            buff += "Slot {} ({}) is ".format(i+1, str(self.slots[i]))
+            buff += "Slot {} ({}) is ".format(i + 1, str(self.slots[i]))
             if self.slots[i].get_status():
                 buff += "stocked\n"
             else:
@@ -58,14 +60,11 @@ class Slot():
         return self.w1_id
 
     def get_status(self):
-        try:
-            file = open("/mnt/w1/{}/id".format(self.w1_id))
-            print('Slot {} stocked'.format(self.w1_id))
-            file.close()
-        except:
-            print('Slot {} empty'.format(self.w1_id))
-            return False
-        return True
+        if Path("/mnt/w1/{}/id".format(self.w1_id)).exists():
+            print("Slot {} stocked" .format(self.w1_id))
+            return True
+        print("Slot {} empty".format(self.w1_id))
+        return False
 
     def get_lock(self):
         return self._lock
@@ -101,8 +100,7 @@ class Sensor():
         try:
             with open('/mnt/w1/{}/temperature12'.format(self.w1_id), 'r') as temp_file:
                 temperature = temp_file.read().rstrip()
-                f_temperature = float(temperature) * (9.0/5.0) + 32.0
+                f_temperature = float(temperature) * (9.0 / 5.0) + 32.0
         except IOError as e:
             return -1
         return f_temperature
-
